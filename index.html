@@ -2,69 +2,68 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tug of War Math - v6</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tug of War Math - v10</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#111; color:white; overflow:hidden; }
-  #top-bar { background:#333; padding:10px; display:flex; justify-content:space-between; align-items:center; }
-  #game-timer { font-size:2.5em; font-weight:bold; color:#0f0; }
-  #question { font-size:2.8em; text-align:center; margin:15px 0; min-height:70px; }
-  
-  .arena { display:flex; height:42vh; align-items:center; padding:0 20px; position:relative; }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#111; color:white; overflow:hidden; display:flex; flex-direction:column; height:100vh; box-sizing:border-box; }
+  #top-bar { background:#333; padding:8px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; font-size:0.9em; }
+  #game-timer { font-size:2.2em; font-weight:bold; color:#0f0; }
+  #question { font-size:2.2em; text-align:center; margin:12px 0; min-height:60px; flex-shrink:0; }
+
+  .arena { flex:1; display:flex; align-items:center; padding:0 15px; position:relative; min-height:0; }
   .team { flex:1; display:flex; flex-direction:column; align-items:center; }
   .blue { align-items:flex-end; }
   .red { align-items:flex-start; }
-  
-  .characters { font-size:4.8em; margin-bottom:25px; display:flex; gap:20px; transition:transform 0.4s; }
+
+  .characters { font-size:4.8em; margin-bottom:15px; display:flex; gap:15px; transition:transform 0.4s; }
+  @media (max-width: 600px) { .characters { font-size:3.8em; gap:10px; } }
   .blue .characters { transform-origin: right center; }
   .red .characters { transform-origin: left center; }
   .pulling { animation: pullAnim 0.5s ease-out; }
-  @keyframes pullAnim { 0% { transform: scale(1.1) translateX(-8px); } 100% { transform: scale(1) translateX(0); } }
+  @keyframes pullAnim { 0% { transform: scale(1.12) translateX(-6px); } 100% { transform: scale(1) translateX(0); } }
   .wrong-shake { animation: shake 0.4s; }
-  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-12px);} 75%{transform:translateX(12px);} }
-  
-  .rope-container { width:280px; position:relative; height:90px; display:flex; align-items:center; justify-content:center; }
-  .rope { width:100%; height:32px; background:linear-gradient(#654321, #8B4513, #654321); border-radius:16px; position:relative; box-shadow:0 8px 15px rgba(0,0,0,0.7); }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
+
+  .rope-container { width:260px; position:relative; height:80px; display:flex; align-items:center; justify-content:center; }
+  @media (max-width: 600px) { .rope-container { width:220px; height:70px; } }
+  .rope { width:100%; height:28px; background:linear-gradient(#654321, #8B4513, #654321); border-radius:14px; position:relative; box-shadow:0 8px 15px rgba(0,0,0,0.7); }
   .marker { 
-    position:absolute; 
-    width:52px; height:62px; 
-    background:#FFD700; 
-    border:5px solid #B8860B; 
-    border-radius:50%; 
-    top:-26px; 
-    left:50%; /* base position */
-    transform: translateX(-50%); /* ← Perfect center fix */
+    position:absolute; width:48px; height:58px; background:#FFD700; border:5px solid #B8860B; border-radius:50%; 
+    top:-24px; left:50%; transform: translateX(-50%); 
     transition:left 0.8s cubic-bezier(0.25,0.8,0.4,1); 
-    display:flex; align-items:center; justify-content:center; 
-    font-size:1.8em; 
-    box-shadow:0 10px 18px rgba(0,0,0,0.7); 
+    display:flex; align-items:center; justify-content:center; font-size:1.6em; box-shadow:0 8px 16px rgba(0,0,0,0.7); 
   }
-  
-  .center-line { position:absolute; left:50%; top:0; bottom:0; width:6px; background:repeating-linear-gradient(to bottom, #fff, #fff 20px, transparent 20px, transparent 40px); z-index:2; transform:translateX(-50%); }
-  
-  .input-area { width:100%; max-width:340px; }
-  .input-display { font-size:3.2em; background:#000; padding:12px; text-align:center; border:4px solid #555; margin:15px 0; min-height:70px; border-radius:12px; }
-  .keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-  .keypad button { font-size:2.1em; padding:18px; background:#444; color:white; border:none; border-radius:12px; }
+
+  .center-line { position:absolute; left:50%; top:0; bottom:0; width:5px; background:repeating-linear-gradient(to bottom, #fff, #fff 18px, transparent 18px, transparent 36px); z-index:2; transform:translateX(-50%); }
+
+  .input-area { width:100%; max-width:320px; }
+  .input-display { font-size:2.8em; background:#000; padding:10px; text-align:center; border:4px solid #555; margin:12px 0; min-height:60px; border-radius:12px; }
+  @media (max-width: 600px) { .input-display { font-size:2.4em; } }
+
+  .keypad { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+  .keypad button { 
+    font-size:1.9em; padding:16px; background:#444; color:white; border:none; border-radius:12px; 
+    aspect-ratio: 1 / 1; /* perfect square buttons */
+    display:flex; align-items:center; justify-content:center;
+  }
+  @media (max-width: 600px) { .keypad button { font-size:1.6em; padding:14px; } }
   .keypad button:active { background:#666; }
   .keypad .clear { background:#666; }
   .keypad .submit { background:#006400; font-weight:bold; }
-  
+
   .settings { 
-    background:#222; 
-    padding:20px; 
-    text-align:center; 
-    margin-top: 70px; 
+    position: fixed; bottom: 0; left: 0; right: 0; 
+    background:#222; padding:20px; text-align:center; 
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.8); z-index: 20;
   }
-  .settings select, .settings button { font-size:1.4em; padding:12px; margin:8px; border-radius:8px; }
-  
-  #winner { position:absolute; inset:0; background:rgba(0,0,0,0.95); display:none; flex-direction:column; align-items:center; justify-content:center; font-size:4.5em; z-index:100; }
+  .settings select, .settings button { font-size:1.3em; padding:12px; margin:6px; border-radius:8px; }
+
+  #winner { position:absolute; inset:0; background:rgba(0,0,0,0.95); display:none; flex-direction:column; align-items:center; justify-content:center; font-size:4em; z-index:100; }
 </style>
 </head>
 <body>
-<!-- HTML body remains the same as v5 -->
 <div id="top-bar">
-  <div>Question Interval: <span id="interval-display">3s</span></div>
+  <div>Interval: <span id="interval-display">3s</span></div>
   <div id="game-timer">05:00</div>
   <div>Time Left</div>
 </div>
@@ -73,7 +72,7 @@
 
 <div class="arena">
   <div class="team blue">
-    <div class="characters" id="blue-chars">🧍‍♂️🧍‍♀️🧍‍♂️🧍‍♀️</div>
+    <div class="characters" id="blue-chars">🧍‍♂️🧍‍♀️</div>
     <div class="input-area">
       <div id="blue-input" class="input-display">0</div>
       <div class="keypad" id="blue-keypad">
@@ -93,7 +92,7 @@
   </div>
 
   <div class="team red">
-    <div class="characters" id="red-chars">🧍‍♂️🧍‍♀️🧍‍♂️🧍‍♀️</div>
+    <div class="characters" id="red-chars">🧍‍♂️🧍‍♀️</div>
     <div class="input-area">
       <div id="red-input" class="input-display">0</div>
       <div class="keypad" id="red-keypad">
@@ -110,47 +109,230 @@
 
 <div class="settings">
   <select id="game-duration">
-    <option value="120">2 minutes</option>
-    <option value="300" selected>5 minutes</option>
-    <option value="600">10 minutes</option>
+    <option value="120">2 min</option>
+    <option value="300" selected>5 min</option>
+    <option value="600">10 min</option>
   </select>
   <select id="question-interval">
-    <option value="3000" selected>3 seconds</option>
-    <option value="4000">4 seconds</option>
-    <option value="5000">5 seconds</option>
-    <option value="6000">6 seconds</option>
+    <option value="3000" selected>3s</option>
+    <option value="4000">4s</option>
+    <option value="5000">5s</option>
+    <option value="6000">6s</option>
   </select>
-  <button onclick="startGame()">▶ Start Game</button>
+  <button onclick="startGame()">Start Game</button>
   <button onclick="resetGame()">Reset</button>
 </div>
 
 <div id="winner">
   <div id="winner-text"></div>
-  <button onclick="resetGame()" style="font-size:1.2em; padding:20px 40px; margin-top:40px;">Play Again</button>
+  <button onclick="resetGame()" style="font-size:1.1em; padding:15px 30px; margin-top:30px;">Play Again</button>
 </div>
 
 <script>
-/* ... (all functions same as v5 except resetGame) ... */
+let baseQuestions = [
+  {"question":"5 + 3","answer":8}, {"question":"12 - 4","answer":8}, {"question":"9 + 7","answer":16},
+  {"question":"15 - 6","answer":9}, {"question":"18 - 5","answer":13}, {"question":"22 - 9","answer":13},
+  {"question":"11 + 4","answer":15}, {"question":"17 - 3","answer":14}, {"question":"25 - 12","answer":13},
+  {"question":"14 - 7","answer":7}, {"question":"20 - 8","answer":12}, {"question":"16 - 7","answer":9},
+  {"question":"8 + 6","answer":14}, {"question":"19 - 10","answer":9}, {"question":"13 + 2","answer":15}
+];
+
+let remainingQuestions = [];
+let currentQuestion = null;
+let gameTimerInterval = null;
+let questionTimerInterval = null;
+let timeLeft = 300;
+let currentPosition = 50;
+let marker = null;
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+let blueInput = '', redInput = '';
+let blueSubmitted = false, redSubmitted = false;
+
+function init() {
+  marker = document.getElementById('marker');
+}
+
+function startGame() {
+  const duration = parseInt(document.getElementById('game-duration').value);
+  const interval = parseInt(document.getElementById('question-interval').value);
+  timeLeft = duration;
+  document.getElementById('interval-display').textContent = (interval/1000) + 's';
+  resetGame();
+  remainingQuestions = [...baseQuestions].sort(() => Math.random() - 0.5);
+  startGameTimer();
+  startQuestionCycle(interval);
+}
+
+function startGameTimer() {
+  if (gameTimerInterval) clearInterval(gameTimerInterval);
+  updateTimerDisplay();
+  gameTimerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const min = Math.floor(timeLeft / 60);
+  const sec = (timeLeft % 60).toString().padStart(2, '0');
+  document.getElementById('game-timer').textContent = `${min}:${sec}`;
+}
+
+function startQuestionCycle(interval) {
+  if (questionTimerInterval) clearInterval(questionTimerInterval);
+  loadNextQuestion();
+  questionTimerInterval = setInterval(loadNextQuestion, interval);
+}
+
+function loadNextQuestion() {
+  if (remainingQuestions.length === 0) remainingQuestions = [...baseQuestions].sort(() => Math.random() - 0.5);
+  currentQuestion = remainingQuestions.shift();
+  document.getElementById('question').textContent = currentQuestion.question + " = ?";
+  resetInputs();
+  blueSubmitted = redSubmitted = false;
+}
+
+function resetInputs() {
+  blueInput = ''; redInput = '';
+  document.getElementById('blue-input').textContent = '0';
+  document.getElementById('red-input').textContent = '0';
+}
+
+function addDigit(team, digit) {
+  if ((team === 'blue' && blueSubmitted) || (team === 'red' && redSubmitted)) return;
+  if (team === 'blue') {
+    blueInput += digit;
+    document.getElementById('blue-input').textContent = blueInput || '0';
+  } else {
+    redInput += digit;
+    document.getElementById('red-input').textContent = redInput || '0';
+  }
+}
+
+function clearInput(team) {
+  if ((team === 'blue' && blueSubmitted) || (team === 'red' && redSubmitted)) return;
+  if (team === 'blue') blueInput = '';
+  else redInput = '';
+  document.getElementById(team + '-input').textContent = '0';
+}
+
+function submitAnswer(team) {
+  if ((team === 'blue' && blueSubmitted) || (team === 'red' && redSubmitted)) return;
+  const input = team === 'blue' ? blueInput : redInput;
+  const answer = parseInt(input);
+  if (!isNaN(answer) && currentQuestion && answer === currentQuestion.answer) {
+    handleCorrectAnswer(team);
+  } else {
+    handleWrongAnswer(team);
+  }
+  if (team === 'blue') blueSubmitted = true;
+  else redSubmitted = true;
+}
+
+function handleCorrectAnswer(team) {
+  playCorrectSound();
+  pullRope(team);
+  animatePull(team);
+  flashSide(team, true);
+  checkWinCondition();
+}
+
+function handleWrongAnswer(team) {
+  playWrongSound();
+  animateWrong(team);
+  flashSide(team, false);
+}
+
+function pullRope(team) {
+  const step = 4;
+  if (team === 'blue') currentPosition = Math.max(0, currentPosition - step);
+  else currentPosition = Math.min(100, currentPosition + step);
+  marker.style.left = currentPosition + '%';
+}
+
+function checkWinCondition() {
+  if (currentPosition <= 0) endGameWithWinner('blue');
+  else if (currentPosition >= 100) endGameWithWinner('red');
+}
+
+function endGameWithWinner(winner) {
+  clearInterval(gameTimerInterval);
+  clearInterval(questionTimerInterval);
+  document.getElementById('winner-text').textContent = winner.toUpperCase() + " TEAM WINS! 🎉";
+  document.getElementById('winner-text').style.color = winner === 'blue' ? '#00aaff' : '#ff4444';
+  document.getElementById('winner').style.display = 'flex';
+}
+
+function endGame() {
+  clearInterval(gameTimerInterval);
+  clearInterval(questionTimerInterval);
+  let winnerText = '';
+  if (currentPosition < 40) winnerText = '🔵 BLUE WINS!';
+  else if (currentPosition > 60) winnerText = '🔴 RED WINS!';
+  else winnerText = '🤝 TIE!';
+  document.getElementById('winner-text').textContent = winnerText;
+  document.getElementById('winner').style.display = 'flex';
+}
+
+function playCorrectSound() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+  osc.frequency.linearRampToValueAtTime(1300, audioCtx.currentTime + 0.15);
+  gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+}
+
+function playWrongSound() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.45);
+}
 
 function resetGame() {
   if (gameTimerInterval) clearInterval(gameTimerInterval);
   if (questionTimerInterval) clearInterval(questionTimerInterval);
-  
   currentPosition = 50;
-  
-  // Instant snap to center (no transition)
   marker.style.transition = 'none';
   marker.style.left = '50%';
-  void marker.offsetWidth; // force reflow
+  void marker.offsetWidth;
   marker.style.transition = 'left 0.8s cubic-bezier(0.25,0.8,0.4,1)';
-  
   document.getElementById('winner').style.display = 'none';
   document.getElementById('question').textContent = 'Press Start Game';
   resetInputs();
   blueSubmitted = redSubmitted = false;
 }
 
-/* rest of the script remains exactly the same as v5 */
+function animatePull(team) {
+  const chars = document.getElementById(team + '-chars');
+  chars.classList.remove('pulling');
+  void chars.offsetWidth;
+  chars.classList.add('pulling');
+}
+
+function animateWrong(team) {
+  const chars = document.getElementById(team + '-chars');
+  chars.classList.remove('wrong-shake');
+  void chars.offsetWidth;
+  chars.classList.add('wrong-shake');
+}
+
+function flashSide(team, isCorrect) {
+  const section = document.querySelector('.' + team);
+  section.style.transition = 'background 0.4s';
+  section.style.background = isCorrect ? 'rgba(0,255,0,0.35)' : 'rgba(255,0,0,0.35)';
+  setTimeout(() => { section.style.background = 'transparent'; }, 800);
+}
 
 window.onload = init;
 </script>
