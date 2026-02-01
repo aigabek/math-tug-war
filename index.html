@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Math Tug of War</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+}
+
+/* ===== TOP ===== */
+#question {
+    text-align: center;
+    font-size: 3rem;
+    padding: 15px;
+}
+
+/* ===== ARENA ===== */
+#arena {
+    position: relative;
+    height: 200px;
+    background: #222;
+}
+
+#center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: white;
+    transform: translateX(-50%);
+}
+
+.player {
+    position: absolute;
+    top: 50px;
+    width: 60px;
+    height: 100px;
+    font-size: 3rem;
+    text-align: center;
+}
+
+#bluePlayer { left: calc(50% - 200px); }
+#redPlayer  { left: calc(50% + 140px); }
+
+#rope {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    width: 320px;
+    height: 20px;
+    background: linear-gradient(to right, blue 50%, red 50%);
+    transform: translateX(-50%);
+    transition: left 0.4s ease;
+}
+
+/* ===== TEAMS ===== */
+#teams {
+    display: flex;
+}
+
+.team {
+    width: 50%;
+    padding: 15px;
+}
+
+.blue { background: #0a1a3a; }
+.red  { background: #3a0a0a; }
+
+.answer {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== KEYPAD ===== */
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.key {
+    padding: 18px;
+    font-size: 2rem;
+    background: #333;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.submit {
+    grid-column: span 3;
+    background: green;
+}
+
+/* ===== TEACHER PANEL ===== */
+#teacher {
+    background: #000;
+    padding: 10px;
+    border-top: 3px solid #444;
+}
+
+#teacher input, #teacher button {
+    font-size: 1rem;
+    margin: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="question">?</div>
+
+<div id="arena">
+    <div id="center"></div>
+    <div class="player" id="bluePlayer">🔵</div>
+    <div class="player" id="redPlayer">🔴</div>
+    <div id="rope"></div>
+</div>
+
+<div id="teams">
+    <div class="team blue">
+        <div class="answer" id="blueAnswer">_</div>
+        <div class="keypad" id="bluePad"></div>
+    </div>
+    <div class="team red">
+        <div class="answer" id="redAnswer">_</div>
+        <div class="keypad" id="redPad"></div>
+    </div>
+</div>
+
+<!-- ===== TEACHER PANEL ===== -->
+<div id="teacher">
+    <b>Teacher Panel</b><br>
+    Question: <input id="tQ" placeholder="8 + 7">
+    Answer: <input id="tA" type="number">
+    <button onclick="addQuestion()">Add</button>
+
+    Time (ms): <input id="tTime" type="number" value="5000">
+    <button onclick="setTime()">Set</button>
+
+    <button onclick="resetGame()">Reset Game</button>
+</div>
+
+<!-- SOUNDS -->
+<audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/ta_da.ogg"></audio>
+
+<script>
+// ===== CONFIG =====
+let MOVE = 40;
+let WIN = 160;
+let QUESTION_TIME = 5000;
+
+// ===== STATE =====
+let ropePos = 0;
+let blue = "", red = "";
+let locked = false;
+let current;
+let timer;
+
+// ===== DATA =====
+let questions = [
+    { q: "6 + 7", a: 13 },
+    { q: "14 - 8", a: 6 }
+];
+
+// ===== ELEMENTS =====
+const rope = document.getElementById("rope");
+const qBox = document.getElementById("question");
+const correctSound = document.getElementById("correctSound");
+const winSound = document.getElementById("winSound");
+
+// ===== LOGIC =====
+function newQuestion() {
+    locked = false;
+    blue = red = "";
+    blueAnswer.textContent = redAnswer.textContent = "_";
+    current = questions[Math.floor(Math.random() * questions.length)];
+    qBox.textContent = current.q + " = ?";
+}
+
+function move(team) {
+    ropePos += team === "blue" ? -MOVE : MOVE;
+    rope.style.left = `calc(50% + ${ropePos}px)`;
+    bluePlayer.style.left = `calc(50% - 200px + ${ropePos}px)`;
+    redPlayer.style.left  = `calc(50% + 140px + ${ropePos}px)`;
+
+    correctSound.play();
+
+    if (Math.abs(ropePos) >= WIN) {
+        winSound.play();
+        alert(team.toUpperCase() + " TEAM WINS!");
+        resetGame();
+    }
+}
+
+function submit(team) {
+    if (locked) return;
+    let val = team === "blue" ? blue : red;
+    if (parseInt(val) === current.a) {
+        locked = true;
+        move(team);
+        setTimeout(newQuestion, 800);
+    }
+}
+
+// ===== KEYPADS =====
+function pad(id, team) {
+    const p = document.getElementById(id);
+    ["1","2","3","4","5","6","7","8","9","0","C","OK"].forEach(k => {
+        let b = document.createElement("div");
+        b.className = "key";
+        b.textContent = k;
+        if (k === "OK") b.classList.add("submit");
+
+        b.onclick = () => {
+            if (k === "C") team === "blue" ? blue="" : red="";
+            else if (k === "OK") submit(team);
+            else team === "blue" ? blue+=k : red+=k;
+
+            document.getElementById(team+"Answer").textContent =
+                team==="blue" ? (blue||"_") : (red||"_");
+        };
+        p.appendChild(b);
+    });
+}
+
+// ===== TEACHER =====
+function addQuestion() {
+    let q = tQ.value;
+    let a = parseInt(tA.value);
+    if (q && !isNaN(a)) questions.push({q,a});
+    tQ.value = tA.value = "";
+}
+
+function setTime() {
+    QUESTION_TIME = parseInt(tTime.value);
+    clearInterval(timer);
+    timer = setInterval(newQuestion, QUESTION_TIME);
+}
+
+function resetGame() {
+    ropePos = 0;
+    rope.style.left = "50%";
+    bluePlayer.style.left = "calc(50% - 200px)";
+    redPlayer.style.left = "calc(50% + 140px)";
+    newQuestion();
+}
+
+// ===== INIT =====
+pad("bluePad","blue");
+pad("redPad","red");
+newQuestion();
+timer = setInterval(newQuestion, QUESTION_TIME);
+</script>
+
+</body>
+</html>
